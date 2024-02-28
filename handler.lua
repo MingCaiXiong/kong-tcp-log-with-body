@@ -1,5 +1,6 @@
 local cjson = require "cjson"
 local basic_serializer = require "kong.plugins.log-serializers.basic"
+local body_transformer = require "kong.plugins.response-transformer.body_transformer"
 
 local is_json_body = body_transformer.is_json_body
 
