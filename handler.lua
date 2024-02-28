@@ -60,6 +60,24 @@ local function parse_body(type, data)
 end
 
 
+function TcpLogHandler:access(conf)
+  if is_json_body(kong.request.get_header("Content-Type")) then
+    local ctx = kong.ctx.plugin;
+    ctx.request_body = kong.request.get_raw_body();
+  end
+end
+
+
+function TcpLogHandler:body_filter(conf)
+  if is_json_body(kong.response.get_header("Content-Type")) then
+    local ctx = kong.ctx.plugin;
+    local chunk, eof = ngx.arg[1], ngx.arg[2];
+    if not eof then
+      ctx.response_body = (ctx.response_body or "") .. (chunk or "")
+    end
+  end
+end
+
 function TcpLogHandler:log(conf)
   local ctx = kong.ctx.plugin;
   local log_obj = basic_serializer.serialize(ngx)
