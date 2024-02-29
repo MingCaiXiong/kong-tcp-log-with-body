@@ -3,8 +3,21 @@
 #### 介绍
 Kong的tcp-log-with-body插件是一个高效的工具，它能够记录Kong处理的请求和响应，同时可以选择性地包含请求体（body）。这个插件非常适用于需要详细记录API请求和响应信息的情景，尤其是在调试和排查问题时。
 
-#### 软件架构
-软件架构说明
+#### 软件环境说明
+- kong version 2.1.4
+- CentOS version  7.3.1611
+```
+kong version --vv
+2024/02/29 00:17:48 [verbose] Kong: 2.1.4
+2024/02/29 00:17:48 [debug] ngx_lua: 10015
+2024/02/29 00:17:48 [debug] nginx: 1015008
+2024/02/29 00:17:48 [debug] Lua: LuaJIT 2.1.0-beta3
+2.1.4
+
+
+cat /etc/centos-release
+CentOS Linux release 7.3.1611 (Core) 
+```
 
 
 #### 插件安装教程
