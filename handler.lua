@@ -1,8 +1,5 @@
 local cjson = require "cjson"
-local basic_serializer = require "kong.plugins.log-serializers.basic"
-local body_transformer = require "kong.plugins.response-transformer.body_transformer"
 
-local is_json_body = body_transformer.is_json_body
 
 local kong = kong
 local ngx = ngx
@@ -53,43 +50,26 @@ local TcpLogHandler = {
   PRIORITY = 7,
   VERSION = "2.0.1",
 }
-local function parse_body(type, data)
-  if type and data and is_json_body(type) then
-    return cjson.decode(data)
-  end
-end
+
 
 
 function TcpLogHandler:access(conf)
-  if is_json_body(kong.request.get_header("Content-Type")) then
-    local ctx = kong.ctx.plugin;
-    ctx.request_body = kong.request.get_raw_body();
-  end
+  kong.log.set_serialize_value("request.body", kong.request.get_raw_body())
 end
 
 
 function TcpLogHandler:body_filter(conf)
-  if is_json_body(kong.response.get_header("Content-Type")) then
-    local ctx = kong.ctx.plugin;
-    local chunk, eof = ngx.arg[1], ngx.arg[2];
-    if not eof then
-      ctx.response_body = (ctx.response_body or "") .. (chunk or "")
-    end
-  end
+  kong.log.set_serialize_value("response.body", kong.response.get_raw_body())
 end
 
 function TcpLogHandler:log(conf)
-  local ctx = kong.ctx.plugin;
-  local log_obj = basic_serializer.serialize(ngx)
-  log_obj.request.body = parse_body(kong.request.get_header("Content-Type"), ctx.request_body)
-  log_obj.response.body = parse_body(kong.response.get_header("Content-Type"), ctx.response_body)
-
-
-  local ok, err = timer_at(0, log, conf, log_obj)
+  local message = kong.log.serialize()
+  local ok, err = timer_at(0, log, conf, message)
   if not ok then
     kong.log.err("failed to create timer: ", err)
   end
 end
+
 
 
 return TcpLogHandler
